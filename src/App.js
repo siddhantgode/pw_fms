@@ -7,6 +7,7 @@ import Login from './Login';
 import TransactionRegister from './TransactionRegister'; // Import the new component
 import './App.css'
 import FirestoreTest from './test'
+import LogBook from './LogBook';
 
 function App() {
   const [user, setUser] = useState(null);
@@ -35,7 +36,7 @@ function App() {
         />
         <Route path="/transaction-register" element={<TransactionRegister />} /> {/* Updated route */}
         <Route path="/shift-handover" element={<div>Shift Handover Page</div>} />
-        <Route path="/log-book" element={<div>Log Book Page</div>} />
+        <Route path="/log-book" element={<LogBook />} />
         <Route path="/travel-desk" element={<div>Travel Desk Page</div>} />
         <Route path="/test" element={<FirestoreTest />} />
       </Routes>

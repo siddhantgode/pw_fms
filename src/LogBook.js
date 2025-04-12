@@ -50,7 +50,6 @@ const rawToHTML = (raw) => {
           currentStyle = `<u>${currentStyle}`;
           styledText = styledText.slice(0, i) + '<u>' + styledText.slice(i);
         }
-        // Handle color styles
         const colorStyle = styles.find((s) => s.startsWith('COLOR-'));
         if (colorStyle && !currentStyle.includes(`color:${colorStyle.replace('COLOR-', '')}`)) {
           currentStyle = `<span style="color:${colorStyle.replace('COLOR-', '')}">${currentStyle}`;
@@ -59,7 +58,6 @@ const rawToHTML = (raw) => {
             `<span style="color:${colorStyle.replace('COLOR-', '')}">` +
             styledText.slice(i);
         }
-        // Close tags
         if (!styles.includes('BOLD') && currentStyle.includes('<b>')) {
           styledText = styledText.slice(0, i) + '</b>' + styledText.slice(i);
           currentStyle = currentStyle.replace('<b>', '');
@@ -132,7 +130,7 @@ const LogBook = () => {
   useEffect(() => {
     const unsub = onSnapshot(collection(db, 'logbook'), (snapshot) => {
       const fetched = snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
-      const sorted = fetched.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt)); // Latest first
+      const sorted = fetched.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
       setEntries(sorted);
     });
     return () => unsub();
@@ -259,36 +257,99 @@ const LogBook = () => {
   const colorPalette = ['#000000', '#FF0000', '#00FF00', '#0000FF', '#FFFF00', '#FF00FF', '#00FFFF'];
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', height: '100vh' }}>
-      <h1 style={{ textAlign: 'center', margin: '1rem 0' }}>LogBook</h1>
-      <div style={{ display: 'flex', flex: 1 }}>
+    <div style={{ minHeight: '100vh' }}>
+      {/* Fixed Title */}
+      <div
+        style={{
+          position: 'fixed',
+          top: 0,
+          left: 0,
+          width: '100%',
+          background: '#fff',
+          zIndex: 2,
+          padding: '1rem',
+          borderBottom: '1px solid #ccc',
+        }}
+      >
+        <h1 style={{ textAlign: 'left', margin: 0 }}>LogBook</h1>
+      </div>
+
+      <div
+        style={{
+          display: 'flex',
+          paddingTop: '60px',
+          minHeight: 'calc(100vh - 60px)',
+        }}
+      >
         {/* Left: Entry List */}
-        <div style={{ width: '65%', padding: '1rem', display: 'flex', flexDirection: 'column' }}>
-          <div style={{ position: 'sticky', top: 0, background: '#fff', zIndex: 1, paddingBottom: '1rem' }}>
-            <h3 style={{ margin: 0 }}>Log Timeline</h3>
-            <button onClick={handleNewEntry} style={{ margin: '1rem 0' }}>
-              + New Entry
-            </button>
-            <div style={{ display: 'flex', gap: '1rem', marginBottom: '1rem' }}>
-              <div>
-                <label>Start Date-Time:</label>
-                <input
-                  type="datetime-local"
-                  value={startDateTime}
-                  onChange={(e) => setStartDateTime(e.target.value)}
-                />
-              </div>
-              <div>
-                <label>End Date-Time:</label>
-                <input
-                  type="datetime-local"
-                  value={endDateTime}
-                  onChange={(e) => setEndDateTime(e.target.value)}
-                />
+        <div
+          style={{
+            width: '65%',
+            padding: '1rem',
+            display: 'flex',
+            flexDirection: 'column',
+            overflowY: 'auto',
+          }}
+        >
+          <div
+            style={{
+              position: 'sticky',
+              top: '60px',
+              background: '#fff',
+              zIndex: 1,
+              paddingBottom: '1rem',
+            }}
+          >
+            <div
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'space-between',
+                flexWrap: 'wrap',
+                gap: '1rem',
+              }}
+            >
+              <h3 style={{ margin: 0, fontSize: '1.2rem' }}>Log Timeline</h3>
+              <div
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '1rem',
+                  flexWrap: 'wrap',
+                }}
+              >
+                <button
+                  onClick={handleNewEntry}
+                  style={{
+                    padding: '0.5rem 1rem',
+                    fontSize: '0.9rem',
+                    cursor: 'pointer',
+                  }}
+                >
+                  + New Entry
+                </button>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                  <label style={{ fontSize: '0.9rem' }}>Start Date-Time:</label>
+                  <input
+                    type="datetime-local"
+                    value={startDateTime}
+                    onChange={(e) => setStartDateTime(e.target.value)}
+                    style={{ padding: '0.3rem', fontSize: '0.9rem' }}
+                  />
+                </div>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                  <label style={{ fontSize: '0.9rem' }}>End Date-Time:</label>
+                  <input
+                    type="datetime-local"
+                    value={endDateTime}
+                    onChange={(e) => setEndDateTime(e.target.value)}
+                    style={{ padding: '0.3rem', fontSize: '0.9rem' }}
+                  />
+                </div>
               </div>
             </div>
           </div>
-          <div style={{ flex: 1, overflowY: 'auto' }}>
+          <div style={{ flex: 1 }}>
             <div style={{ display: 'flex', flexDirection: 'column', gap: '2rem' }}>
               {filteredEntries.length === 0 ? (
                 <p>No entries</p>
@@ -304,7 +365,13 @@ const LogBook = () => {
                         cursor: 'pointer',
                       }}
                     >
-                      <div style={{ fontSize: '0.85rem', marginBottom: '0.5rem', color: '#666' }}>
+                      <div
+                        style={{
+                          fontSize: '0.85rem',
+                          marginBottom: '0.5rem',
+                          color: '#666',
+                        }}
+                      >
                         <strong>{entry.user?.name || 'Anonymous'}</strong> –{' '}
                         {entry.createdAt
                           ? new Date(entry.createdAt).toLocaleString()
@@ -325,12 +392,32 @@ const LogBook = () => {
           </div>
         </div>
 
-        {/* Right: Editor */}
-        <div style={{ width: '35%', padding: '1rem', borderLeft: '1px solid #ccc' }}>
+        {/* Right: Fixed Editor */}
+        <div
+          style={{
+            position: 'fixed',
+            top: '60px',
+            right: 0,
+            width: '35%',
+            height: 'calc(100vh - 60px)',
+            padding: '1rem',
+            background: '#fff',
+            borderLeft: '1px solid #ccc',
+            overflowY: 'auto',
+            zIndex: 1,
+          }}
+        >
           <h3>{selectedEntryId ? 'Edit Entry' : 'New Entry'}</h3>
 
           {/* Formatting Buttons */}
-          <div style={{ marginBottom: '1rem', display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
+          <div
+            style={{
+              marginBottom: '1rem',
+              display: 'flex',
+              gap: '0.5rem',
+              flexWrap: 'wrap',
+            }}
+          >
             <button
               onClick={() => toggleInlineStyle('BOLD')}
               title="Bold"
@@ -406,7 +493,10 @@ const LogBook = () => {
           >
             <Editor editorState={editorState} onChange={setEditorState} />
           </div>
-          <button onClick={handleSave} style={{ padding: '0.5rem 1.2rem' }}>
+          <button
+            onClick={handleSave}
+            style={{ padding: '0.5rem 1.2rem', width: '100%' }}
+          >
             Save
           </button>
         </div>
