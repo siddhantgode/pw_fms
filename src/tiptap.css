@@ -1,0 +1,13 @@
+/* src/tiptap.css */
+
+.ProseMirror {
+    outline: none;
+    min-height: 250px;
+    font-family: sans-serif;
+    font-size: 1rem;
+  }
+  
+  .ProseMirror p {
+    margin: 0 0 1em 0;
+  }
+  
