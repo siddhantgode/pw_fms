@@ -1,0 +1,38 @@
+[
+    {
+      "date": "2025-04-17",
+      "guestName": "John Doe",
+      "costCenter": "Hotel Operations",
+      "checkIn": "2025-04-17",
+      "checkOut": "2025-04-20",
+      "idsBookingId": "BOOK-001",
+      "amount": "150",
+      "txnType": "Cash",
+      "reference": "REF-001",
+      "remarks": "Test transaction"
+    },
+    {
+      "date": "2025-04-18",
+      "guestName": "Jane Smith",
+      "costCenter": "Spa Services",
+      "checkIn": "",
+      "checkOut": "",
+      "idsBookingId": "",
+      "amount": "75",
+      "txnType": "Paytm Card",
+      "reference": "REF-002",
+      "remarks": "Walkin test"
+    },
+    {
+      "date": "2025-04-19",
+      "guestName": "Bob Johnson",
+      "costCenter": "Dining",
+      "checkIn": "2025-04-19",
+      "checkOut": "2025-04-21",
+      "idsBookingId": "BOOK-002",
+      "amount": "200",
+      "txnType": "Gpay",
+      "reference": "REF-003",
+      "remarks": "Another test"
+    }
+  ]
