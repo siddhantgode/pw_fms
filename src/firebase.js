@@ -1,9 +1,8 @@
 // src/firebase.js
 import { initializeApp } from 'firebase/app';
 import { getAuth, GoogleAuthProvider } from 'firebase/auth';
-import { getFirestore, connectFirestoreEmulator } from 'firebase/firestore';
+import { getFirestore } from 'firebase/firestore';
 
-// ✅ Initialize app first
 const firebaseConfig = {
   apiKey: "AIzaSyCob6k3QmfUSkYCbnDqBTgy4i7zB2POUMg",
   authDomain: "team-pearl-6f192.firebaseapp.com",
@@ -15,14 +14,11 @@ const firebaseConfig = {
 
 const app = initializeApp(firebaseConfig);
 
-// ✅ Now safe to use app
+// Authentication exports
 const auth = getAuth(app);
 const provider = new GoogleAuthProvider();
-const db = getFirestore(app);
 
-// ✅ Connect to Firestore emulator only in dev
-if (window.location.hostname === 'localhost') {
-  connectFirestoreEmulator(db, 'localhost', 8080);
-}
+// Firestore export (no emulator)
+const db = getFirestore(app);
 
 export { auth, provider, db };
