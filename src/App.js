@@ -4,12 +4,15 @@ import { BrowserRouter as Router, Route, Routes, Navigate } from 'react-router-d
 import { onAuthStateChanged } from 'firebase/auth';
 import { auth } from './firebase';
 import Login from './Login';
-import TransactionRegister from './TransactionRegister'; // Import the new component
-import './App.css'
-import FirestoreTest from './test'
+import TransactionRegister from './TransactionRegister';
+import './App.css';
+import FirestoreTest from './test';
 import LogBook from './LogBook';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import Reports from './Reports';
+import FrontOfficeChecklist from './FrontOfficeChecklist';
+import HousekeepingChecklist from './HousekeepingChecklist';
+import RestaurantChecklist from './RestaurantChecklist';
 
 function App() {
   const [user, setUser] = useState(null);
@@ -36,13 +39,15 @@ function App() {
           path="/welcome"
           element={loading ? <div>Loading...</div> : user ? <Login user={user} setUser={setUser} /> : <Navigate to="/" />}
         />
-        <Route path="/transaction-register" element={<TransactionRegister />} /> {/* Updated route */}
+        <Route path="/transaction-register" element={<TransactionRegister />} />
         <Route path="/shift-handover" element={<div>Shift Handover Page</div>} />
         <Route path="/log-book" element={<LogBook />} />
         <Route path="/travel-desk" element={<div>Travel Desk Page</div>} />
         <Route path="/test" element={<FirestoreTest />} />
         <Route path="/reports" element={<Reports />} />
-
+        <Route path="/front-office-checklist" element={<FrontOfficeChecklist />} />
+        <Route path="/housekeeping-checklist" element={<HousekeepingChecklist />} />
+        <Route path="/restaurant-checklist" element={<RestaurantChecklist />} />
       </Routes>
     </Router>
   );
