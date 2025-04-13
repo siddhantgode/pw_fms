@@ -6,7 +6,7 @@ import { auth, provider } from './firebase';
 
 // Import Font Awesome components and icons
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faList, faExchangeAlt, faBook, faPlane } from '@fortawesome/free-solid-svg-icons';
+import { faList, faExchangeAlt, faBook, faPlane, faChartBar, faClipboardList, faUtensils, faHome, faWarehouse } from '@fortawesome/free-solid-svg-icons';
 
 const Login = ({ user, setUser }) => {
   const [error, setError] = useState(null);
@@ -44,69 +44,153 @@ const Login = ({ user, setUser }) => {
     navigate(path);
   };
 
-  // Render different views based on user state
+  // Render different views
   return (
-    <div className="App" style={{ backgroundColor: user ? '#ffffff' : '#ffffff' }}>
-      <header className="App-header" style={{ color: '#000000', position: 'relative', minHeight: '100vh' }}>
-        <h1 className="app-title">Pearl-Wellness</h1>
+    <div className="App" style={{ backgroundColor: '#ffffff', minHeight: '100vh' }}>
+      <header className="App-header">
         {user ? (
           // Welcome view
           <div>
-            <div style={{ position: 'absolute', top: '20px', left: '20px', right: '20px', display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
-              <h1 style={{ fontSize: '1.5rem', margin: '0', color: '#000000' }}>Welcome to Team Pearl, {user.displayName || 'User'}!</h1>
-              <button
-                onClick={handleSignOut}
-                style={{
-                  padding: '8px 16px',
-                  backgroundColor: '#f0f0f0',
-                  border: '1px solid #ddd',
-                  borderRadius: '4px',
-                  cursor: 'pointer',
-                  fontSize: '14px',
-                  color: '#000000',
-                  margin: '0',
-                }}
-              >
-                Sign Out
-              </button>
+            {/* Separate div for welcome text and sign-out button at the top */}
+            <div className="container">
+              <div className="d-flex justify-content-between align-items-start mb-3">
+                <p style={{ fontSize: '1.2rem' }}>Welcome to Team Pearl, {user.displayName || 'User'}!</p>
+                <div className="d-flex align-items-center">
+                  {user.photoURL ? (
+                    <img
+                      src={user.photoURL}
+                      alt="User profile"
+                      style={{ width: '30px', height: '30px', borderRadius: '50%', marginRight: '10px' }}
+                      onError={(e) => {
+                        e.target.src = 'https://via.placeholder.com/30'; // Fallback image if photoURL fails
+                        console.error('Image load error, using fallback:', e);
+                      }}
+                    />
+                  ) : (
+                    <img
+                      src="https://via.placeholder.com/30"
+                      alt="Default profile"
+                      style={{ width: '30px', height: '30px', borderRadius: '50%', marginRight: '10px' }}
+                    />
+                  )}
+                  <button
+                    onClick={handleSignOut}
+                    className="btn btn-outline-secondary btn-sm"
+                  >
+                    Sign Out
+                  </button>
+                </div>
+              </div>
             </div>
-            <div style={{ padding: '40px', display: 'flex', justifyContent: 'center', gap: '20px', marginTop: '80px', flexWrap: 'wrap' }}>
-              <div className="tile" onClick={() => handleNavigate('/transaction-register')}>
-                <FontAwesomeIcon icon={faList} size="lg" style={{ marginBottom: '5px', color: '#007bff' }} />
-                <span>Transaction Register</span>
-              </div>
-              <div className="tile" onClick={() => handleNavigate('/shift-handover')}>
-                <FontAwesomeIcon icon={faExchangeAlt} size="lg" style={{ marginBottom: '5px', color: '#007bff' }} />
-                <span>Shift Handover</span>
-              </div>
-              <div className="tile" onClick={() => handleNavigate('/log-book')}>
-                <FontAwesomeIcon icon={faBook} size="lg" style={{ marginBottom: '5px', color: '#007bff' }} />
-                <span>Log Book</span>
-              </div>
-              <div className="tile" onClick={() => handleNavigate('/travel-desk')}>
-                <FontAwesomeIcon icon={faPlane} size="lg" style={{ marginBottom: '5px', color: '#007bff' }} />
-                <span>Travel Desk</span>
+
+            {/* Separate div for title below welcome */}
+            <div className="text-center py-2 mb-4">
+              <h1 className="app-title">Pearl-Wellness</h1>
+            </div>
+
+            {/* Separate div for tiles using Bootstrap grid */}
+            <div className="container">
+              <div className="row justify-content-center" style={{ gap: '20px' }}>
+                <div className="col-12 col-sm-6 col-md-4 col-lg-3 mb-3">
+                  <div
+                    className="tile"
+                    onClick={() => handleNavigate('/transaction-register')}
+                    style={{ height: '85%', width: '100%', padding: '10px', textAlign: 'center', cursor: 'pointer', border: '1px solid #ddd', borderRadius: '4px', backgroundColor: '#f9f9f9' }}
+                  >
+                    <FontAwesomeIcon icon={faList} size="lg" style={{ marginBottom: '5px', color: '#007bff' }} />
+                    <span>Transaction Register</span>
+                  </div>
+                </div>
+                <div className="col-12 col-sm-6 col-md-4 col-lg-3 mb-3">
+                  <div
+                    className="tile"
+                    onClick={() => handleNavigate('/shift-handover')}
+                    style={{ height: '85%', width: '100%', padding: '10px', textAlign: 'center', cursor: 'pointer', border: '1px solid #ddd', borderRadius: '4px', backgroundColor: '#f9f9f9' }}
+                  >
+                    <FontAwesomeIcon icon={faExchangeAlt} size="lg" style={{ marginBottom: '5px', color: '#007bff' }} />
+                    <span>Shift Handover</span>
+                  </div>
+                </div>
+                <div className="col-12 col-sm-6 col-md-4 col-lg-3 mb-3">
+                  <div
+                    className="tile"
+                    onClick={() => handleNavigate('/log-book')}
+                    style={{ height: '85%', width: '100%', padding: '10px', textAlign: 'center', cursor: 'pointer', border: '1px solid #ddd', borderRadius: '4px', backgroundColor: '#f9f9f9' }}
+                  >
+                    <FontAwesomeIcon icon={faBook} size="lg" style={{ marginBottom: '5px', color: '#007bff' }} />
+                    <span>Log Book</span>
+                  </div>
+                </div>
+                <div className="col-12 col-sm-6 col-md-4 col-lg-3 mb-3">
+                  <div
+                    className="tile"
+                    onClick={() => handleNavigate('/travel-desk')}
+                    style={{ height: '85%', width: '100%', padding: '10px', textAlign: 'center', cursor: 'pointer', border: '1px solid #ddd', borderRadius: '4px', backgroundColor: '#f9f9f9' }}
+                  >
+                    <FontAwesomeIcon icon={faPlane} size="lg" style={{ marginBottom: '5px', color: '#007bff' }} />
+                    <span>Travel Desk</span>
+                  </div>
+                </div>
+                <div className="col-12 col-sm-6 col-md-4 col-lg-3 mb-3">
+                  <div
+                    className="tile"
+                    onClick={() => handleNavigate('/reports')}
+                    style={{ height: '85%', width: '100%', padding: '10px', textAlign: 'center', cursor: 'pointer', border: '1px solid #ddd', borderRadius: '4px', backgroundColor: '#f9f9f9' }}
+                  >
+                    <FontAwesomeIcon icon={faChartBar} size="lg" style={{ marginBottom: '5px', color: '#007bff' }} />
+                    <span>Reports</span>
+                  </div>
+                </div>
+                <div className="col-12 col-sm-6 col-md-4 col-lg-3 mb-3">
+                  <div
+                    className="tile"
+                    onClick={() => handleNavigate('/front-office-checklist')}
+                    style={{ height: '85%', width: '100%', padding: '10px', textAlign: 'center', cursor: 'pointer', border: '1px solid #ddd', borderRadius: '4px', backgroundColor: '#f9f9f9' }}
+                  >
+                    <FontAwesomeIcon icon={faClipboardList} size="lg" style={{ marginBottom: '5px', color: '#007bff' }} />
+                    <span>Front Office Checklist</span>
+                  </div>
+                </div>
+                <div className="col-12 col-sm-6 col-md-4 col-lg-3 mb-3">
+                  <div
+                    className="tile"
+                    onClick={() => handleNavigate('/restaurant-checklist')}
+                    style={{ height: '85%', width: '100%', padding: '10px', textAlign: 'center', cursor: 'pointer', border: '1px solid #ddd', borderRadius: '4px', backgroundColor: '#f9f9f9' }}
+                  >
+                    <FontAwesomeIcon icon={faUtensils} size="lg" style={{ marginBottom: '5px', color: '#007bff' }} />
+                    <span>Restaurant Checklist</span>
+                  </div>
+                </div>
+                <div className="col-12 col-sm-6 col-md-4 col-lg-3 mb-3">
+                  <div
+                    className="tile"
+                    onClick={() => handleNavigate('/housekeeping-checklist')}
+                    style={{ height: '85%', width: '100%', padding: '10px', textAlign: 'center', cursor: 'pointer', border: '1px solid #ddd', borderRadius: '4px', backgroundColor: '#f9f9f9' }}
+                  >
+                    <FontAwesomeIcon icon={faHome} size="lg" style={{ marginBottom: '5px', color: '#007bff' }} />
+                    <span>Housekeeping Checklist</span>
+                  </div>
+                </div>
+                <div className="col-12 col-sm-6 col-md-4 col-lg-3 mb-3">
+                  <div
+                    className="tile"
+                    onClick={() => handleNavigate('/stores-checklist')}
+                    style={{ height: '85%', width: '100%', padding: '10px', textAlign: 'center', cursor: 'pointer', border: '1px solid #ddd', borderRadius: '4px', backgroundColor: '#f9f9f9' }}
+                  >
+                    <FontAwesomeIcon icon={faWarehouse} size="lg" style={{ marginBottom: '5px', color: '#007bff' }} />
+                    <span>Stores Checklist</span>
+                  </div>
+                </div>
               </div>
             </div>
           </div>
         ) : (
           // Login view
-          <div>
+          <div className="container d-flex justify-content-center align-items-center" style={{ minHeight: 'calc(100vh - 100px)' }}>
             <button
               onClick={handleLogin}
-              style={{
-                display: 'flex',
-                alignItems: 'center',
-                padding: '8px 12px',
-                backgroundColor: 'white',
-                border: '1px solid #ddd',
-                borderRadius: '4px',
-                cursor: 'pointer',
-                fontWeight: '500',
-                fontSize: '14px',
-                gap: '8px',
-                color: '#000000',
-              }}
+              className="btn btn-outline-secondary d-flex align-items-center gap-2"
+              style={{ fontWeight: '500', fontSize: '14px' }}
             >
               <img
                 src="https://developers.google.com/identity/images/g-logo.png"
@@ -117,7 +201,7 @@ const Login = ({ user, setUser }) => {
             </button>
           </div>
         )}
-        {error && <p style={{ color: 'red' }}>{error}</p>}
+        {error && <div className="container"><p className="text-danger text-center">{error}</p></div>}
       </header>
     </div>
   );

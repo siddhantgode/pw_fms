@@ -8,6 +8,8 @@ import TransactionRegister from './TransactionRegister'; // Import the new compo
 import './App.css'
 import FirestoreTest from './test'
 import LogBook from './LogBook';
+import 'bootstrap/dist/css/bootstrap.min.css';
+import Reports from './Reports';
 
 function App() {
   const [user, setUser] = useState(null);
@@ -39,6 +41,8 @@ function App() {
         <Route path="/log-book" element={<LogBook />} />
         <Route path="/travel-desk" element={<div>Travel Desk Page</div>} />
         <Route path="/test" element={<FirestoreTest />} />
+        <Route path="/reports" element={<Reports />} />
+
       </Routes>
     </Router>
   );
