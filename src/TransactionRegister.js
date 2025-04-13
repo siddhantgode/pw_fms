@@ -42,8 +42,8 @@ const multiSelectFilterOperator: GridFilterOperator = {
 };
 
 // Options
-const costCenterOptions = ['Hotel Operations', 'Spa Services', 'Dining'];
-const txnTypeOptions = ['Paytm Card', 'Cash', 'Gpay'];
+const costCenterOptions = ['Pearl Accomodation', 'Pearl Restaurant', 'Wellness Accomodation','Wellness Restaurant'];
+const txnTypeOptions = ['Paytm Card','Paytm UPI','Mswipe Card','Mswipe UPI','Razorpay', 'Cash', 'Gpay'];
 
 const TransactionRegister = () => {
   const [allTransactions, setAllTransactions] = useState([]);
@@ -313,9 +313,10 @@ const TransactionRegister = () => {
             required
           >
             <option value="">Select Cost Center</option>
-            <option value="Hotel Operations">Hotel Operations</option>
-            <option value="Spa Services">Spa Services</option>
-            <option value="Dining">Dining</option>
+            <option value="Pearl Accomodation">Pearl Accomodation</option>
+            <option value="Wellness Accomodation">Wellness Accomodation</option>
+            <option value="Pearl Restaurant">Pearl Restaurant</option>
+            <option value="Wellness Restaurant">Wellness Restaurant</option>
           </select>
           {!isWalkin && (
             <>
@@ -358,6 +359,10 @@ const TransactionRegister = () => {
           >
             <option value="">Select Transaction Type</option>
             <option value="Paytm Card">Paytm Card</option>
+            <option value="Paytm UPI">Paytm UPI</option>
+            <option value="Mswipe Card">Mswipe Card</option>
+            <option value="Mswipe UPI">Mswipe UPI</option>
+            <option value="Razorpay">Razorpay</option>
             <option value="Cash">Cash</option>
             <option value="Gpay">Gpay</option>
           </select>
