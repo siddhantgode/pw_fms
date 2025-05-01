@@ -35,6 +35,7 @@ function App() {
   const allowedEmails = [
     'siddhant.gode@volunteer.heartfulness.org',
     'pearl.manager@heartfulness.org',
+    'wellness.rooms@heartfulness.org',
   ];
 
   useEffect(() => {
