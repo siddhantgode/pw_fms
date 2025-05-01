@@ -6,7 +6,7 @@ import { auth, provider } from './firebase';
 
 // Import Font Awesome components and icons
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faList, faExchangeAlt, faBook, faPlane, faChartBar, faClipboardList, faUtensils, faHome, faWarehouse } from '@fortawesome/free-solid-svg-icons';
+import { faList, faExchangeAlt, faBook, faPlane, faChartBar, faClipboardList, faUtensils, faHome, faWarehouse, faUsers } from '@fortawesome/free-solid-svg-icons';
 
 const Login = ({ user, setUser }) => {
   const [error, setError] = useState(null);
@@ -179,6 +179,16 @@ const Login = ({ user, setUser }) => {
                   >
                     <FontAwesomeIcon icon={faWarehouse} size="lg" style={{ marginBottom: '5px', color: '#007bff' }} />
                     <span>Stores Checklist</span>
+                  </div>
+                </div>
+                <div className="col-12 col-sm-6 col-md-4 col-lg-3 mb-3">
+                  <div
+                    className="tile"
+                    onClick={() => handleNavigate('/user-management')}
+                    style={{ height: '85%', width: '100%', padding: '10px', textAlign: 'center', cursor: 'pointer', border: '1px solid #ddd', borderRadius: '4px', backgroundColor: '#f9f9f9' }}
+                  >
+                    <FontAwesomeIcon icon={faUsers} size="lg" style={{ marginBottom: '5px', color: '#007bff' }} />
+                    <span>User Management</span>
                   </div>
                 </div>
               </div>
