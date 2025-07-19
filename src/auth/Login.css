@@ -1,0 +1,58 @@
+/* Login page styles moved here from src/Login.css */
+.scrollable-tiles-container {
+  max-height: 400px;
+  overflow-y: auto;
+  margin: 0 auto;
+  background: #fff;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+  padding: 20px;
+  width: 100%;
+  max-width: 900px;
+  border: none; /* Remove border */
+  scrollbar-width: none; /* Firefox */
+}
+
+.scrollable-tiles-container::-webkit-scrollbar {
+  display: none; /* Chrome, Safari, Opera */
+}
+
+.App {
+  background-color: #ffffff;
+  min-height: 100vh;
+}
+
+.App-header {
+  width: 100%;
+}
+
+.app-title {
+  font-weight: 700;
+  letter-spacing: 1px;
+}
+
+.login-logo {
+  width: 150px;
+  height: auto;
+  margin-bottom: 20px;
+}
+
+.google-btn {
+  font-weight: 500;
+  font-size: 14px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.google-logo {
+  width: 20px;
+  height: 20px;
+}
+
+.tile-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 24px;
+  margin-bottom: 16px;
+}

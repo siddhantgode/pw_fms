@@ -1,0 +1,7 @@
+/* UI component styles: Navbar (moved from components/Navbar.css) */
+.navbar-logo-img {
+  height: 32px !important;
+  width: 32px !important;
+  object-fit: contain;
+  margin-right: 0.75rem !important;
+}

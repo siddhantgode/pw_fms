@@ -209,3 +209,7 @@ input:checked + .slider:before {
 .form-buttons button:nth-child(3) {
   background-color: #dc3545;
 }
+
+.main-content {
+  padding: 64px 24px 24px 24px;
+}
