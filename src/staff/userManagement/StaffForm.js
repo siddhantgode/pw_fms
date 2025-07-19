@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { db } from '../../firebase';
 import { collection, addDoc, getDocs, updateDoc, doc } from 'firebase/firestore';
 
+
 const initialFormData = {
   firstName: '',
   lastName: '',

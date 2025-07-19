@@ -162,6 +162,7 @@ export default function StaffTable() {
     setUsers(prev => prev.filter(u => u.id !== id));
   };
 
+  
   return (
     <div>
       <style>{`

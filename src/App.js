@@ -13,7 +13,7 @@ import FrontOfficeChecklist from './checklists/FrontOfficeChecklist';
 import HousekeepingChecklist from './checklists/HousekeepingChecklist';
 import RestaurantChecklist from './checklists/RestaurantChecklist';
 import StaffScore from './staff/StaffScore';
-import UserManagement from './staff/UserManagement';
+import UserManagement from './staff/userManagement/UserManagement';
 
 import { AppNavbar } from './ui';
 import './App.css';
