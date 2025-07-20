@@ -21,12 +21,12 @@ function AppNavbar({ user, setUser }) {
   };
 
   return (
-    <Navbar bg="light" expand="lg" fixed="top">
-      <Container>
+    <Navbar bg="light" expand="lg" fixed="top" className="pw-navbar">
+      <Container fluid>
         <Navbar.Brand
           as={Link}
           to="/"
-          className="app-logo me-5 d-flex align-items-center"
+          className="app-logo d-flex align-items-center"
         >
           <img
             src="/logo192.png"
@@ -34,7 +34,7 @@ function AppNavbar({ user, setUser }) {
             className="navbar-logo-img"
           />
         </Navbar.Brand>
-        <Navbar.Toggle aria-controls="basic-navbar-nav" />
+        <Navbar.Toggle aria-controls="basic-navbar-nav" className="custom-toggler" />
         <Navbar.Collapse id="basic-navbar-nav">
           <Nav className="me-auto">
             <NavDropdown title="Front Office" id="front-office-dropdown">

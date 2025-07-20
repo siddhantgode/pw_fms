@@ -34,6 +34,14 @@ const ProtectedRoute = ({ user, allowedEmails, children, redirectTo = '/' }) => 
 function App() {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [windowWidth, setWindowWidth] = useState(window.innerWidth);
+
+  // Add window resize listener for responsiveness
+  useEffect(() => {
+    const handleResize = () => setWindowWidth(window.innerWidth);
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
 
   const allowedEmails = [
     'siddhant.gode@volunteer.heartfulness.org',

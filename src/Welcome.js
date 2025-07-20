@@ -21,7 +21,7 @@ const Welcome = ({ user, setUser }) => {
   return (
     <div className="Welcome">
       <header className="App-header">
-        <h1>Welcome to Team Pearl, {displayName}!</h1>
+        <h1 className="welcome-title">Welcome to Team Pearl, {displayName}!</h1>
         <button
           onClick={onSignOut}
           style={{

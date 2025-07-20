@@ -1,0 +1,68 @@
+/* Tile styles for both desktop and mobile */
+.menu-tile {
+  transition: all 0.2s cubic-bezier(0.4,0,0.2,1);
+  box-sizing: border-box;
+  height: 75px;
+  border-radius: 0;
+  border: 1px solid #3d0066;
+  background: #fff;
+  color: #3d0066;
+  box-shadow: 0 2px 8px rgba(61,0,102,0.04);
+  cursor: pointer;
+  padding: 0 15px 15px 8px;
+  margin: 0;
+  font-weight: 500;
+  font-size: 13px;
+  letter-spacing: 0.2px;
+  display: flex;
+  flex-direction: row;
+  align-items: flex-end;
+  justify-content: flex-start;
+  text-align: left;
+  gap: 10px;
+  width: 100%;
+}
+
+.menu-tile:hover {
+  background: #3d0066 !important;
+  color: #fff !important;
+  border-color: #3d0066 !important;
+  box-shadow: 0 4px 24px rgba(61,0,102,0.13) !important;
+  transform: scale(1.05);
+}
+
+.menu-tile:hover .fa-icon {
+  color: #fff !important;
+}
+
+/* Desktop styles */
+@media (min-width: 768px) {
+  .menu-tile-col {
+    width: 140px !important;
+    flex: 0 0 140px !important;
+    max-width: 140px !important;
+  }
+}
+
+/* Mobile styles */
+@media (max-width: 767px) {
+  .menu-tile {
+    height: 60px !important;
+    font-size: 11px !important;
+    padding: 0 8px 8px 6px !important;
+    margin: 0 !important;
+  }
+  
+  .menu-tile .fa-icon {
+    font-size: 15px !important;
+    min-width: 18px !important;
+  }
+}
+
+/* Smaller screens */
+@media (max-width: 480px) {
+  .menu-tile {
+    height: 55px !important;
+    padding: 0 6px 8px 4px !important;
+  }
+}
