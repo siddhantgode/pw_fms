@@ -62,16 +62,17 @@ function AppNavbar({ user, setUser }) {
           <Nav className="ms-auto align-items-center">
             {user && (
               <>
-                <span className="me-2">
+                <div className="d-flex align-items-center me-2">
                   <Image
                     src={user.photoURL || 'https://via.placeholder.com/30'}
                     alt="User profile"
                     roundedCircle
                     width={32}
                     height={32}
+                    style={{ border: '2px solid white' }}
                     onError={e => { e.target.src = 'https://via.placeholder.com/30'; }}
                   />
-                </span>
+                </div>
                 <Button
                   variant="outline-secondary"
                   size="sm"

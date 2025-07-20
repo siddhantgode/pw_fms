@@ -5,6 +5,7 @@
   text-align: center;
   background-color: #ffffff;
   font-family: 'Montserrat', sans-serif;
+  padding-top: 60px; /* Add space for fixed navbar */
 }
 
 .app-title {
@@ -30,13 +31,14 @@
   
   .welcome-title {
     font-size: 1.8rem;
-    margin-top: 60px;
+    margin-top: 70px;
   }
   
   .App {
     overflow-x: hidden;
     width: 100vw;
     max-width: 100%;
+    padding-top: 60px; /* Add space for fixed navbar */
   }
 }
 

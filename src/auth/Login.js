@@ -67,7 +67,7 @@ const Login = ({ user, setUser }) => {
                   <div key={section} className="mb-4 text-start">
                     <h5 className="section-header mb-3 px-3">{section}</h5>
                     <div className="container-fluid px-1">
-                      <div className="row g-2">
+                      <div className="row g-2 flex-wrap">
                         {sectionTiles.map(({ label, icon, path }) => (
                           <div key={path} className="col-6 col-md-auto menu-tile-col mb-2">
                             <div

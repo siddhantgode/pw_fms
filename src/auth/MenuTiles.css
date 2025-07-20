@@ -38,9 +38,15 @@
 /* Desktop styles */
 @media (min-width: 768px) {
   .menu-tile-col {
-    width: 140px !important;
-    flex: 0 0 140px !important;
-    max-width: 140px !important;
+    min-width: 140px !important;
+    max-width: fit-content !important;
+    flex: 0 0 auto !important;
+  }
+  
+  .menu-tile {
+    width: auto !important;
+    white-space: nowrap;
+    min-width: 140px !important;
   }
 }
 

@@ -36,7 +36,7 @@ const UserManagement = () => {
         <h1 className="mb-0">User Management</h1>
         
         {/* Category navigation - now right-aligned in the same row as the title */}
-        <div className="d-flex gap-2">
+        <div className="d-flex gap-2 flex-wrap">
           {categories.map(({ label, icon }) => (
             <div
               key={label}
@@ -44,7 +44,8 @@ const UserManagement = () => {
               onClick={() => setActiveCategory(label)}
               style={{
                 height: 75,
-                width: 140,
+                minWidth: 140,
+                width: 'auto',
                 border: activeCategory === label ? '2px solid #3d0066' : '1px solid #3d0066',
                 background: activeCategory === label ? '#3d0066' : '#fff',
                 color: activeCategory === label ? '#fff' : '#3d0066',

@@ -38,7 +38,15 @@
 /* Pearl-Wellness custom purple navbar */
 .pw-navbar {
   background: #3d0066 !important;
-  border-bottom: 2px solid #3d0066 !important;
+  border-bottom: none !important;
+  position: fixed !important; 
+  top: 0 !important;
+  right: 0 !important;
+  left: 0 !important;
+  width: 100% !important;
+  height: 60px !important;
+  z-index: 1050 !important;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.2);
 }
 .pw-navbar .navbar-brand,
 .pw-navbar .navbar-nav .nav-link,
@@ -76,6 +84,13 @@
   padding: 0.25rem 0.4rem !important;
 }
 
+/* User profile image styling */
+.pw-navbar img.rounded-circle {
+  border: 2px solid white !important;
+  background-color: white;
+  display: block;
+}
+
 .navbar-toggler:focus {
   box-shadow: 0 0 0 0.15rem rgba(255, 255, 255, 0.3) !important;
 }
@@ -94,6 +109,11 @@
     width: 100% !important;
     left: 0;
     right: 0;
+  }
+  
+  /* Ensure silver strip appears correctly on mobile */
+  .pw-navbar::after {
+    height: 4px;
   }
   
   .pw-navbar .container {
