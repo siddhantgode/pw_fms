@@ -73,18 +73,15 @@ export const vendorFields = [
 
 // Support category fields
 export const supportFields = [
-  { value: 'name', label: 'Name', type: 'text', required: true },
-  { value: 'supportId', label: 'Support ID', type: 'text', required: true },
+  { value: 'subject', label: 'Subject', type: 'text', required: true },
+  { value: 'description', label: 'Description', type: 'textarea', required: true },
+  { value: 'raisedBy', label: 'Raised By', type: 'text', required: true },
   { value: 'department', label: 'Department', type: 'select', options: [
-    'IT', 'HR', 'Finance', 'Operations', 'Maintenance', 'General'
+    'Front Office', 'Housekeeping', 'F&B', 'Maintenance', 'IT', 'Administration'
   ], required: true },
-  { value: 'mobileNo', label: 'Mobile Number', type: 'tel', required: true },
-  { value: 'emailId', label: 'Email', type: 'email', required: true },
-  { value: 'designation', label: 'Designation', type: 'text', required: true },
-  { value: 'company', label: 'Company', type: 'text', required: true },
-  { value: 'location', label: 'Location', type: 'text' },
-  { value: 'status', label: 'Status', type: 'select', options: ['Active', 'Inactive'], required: true },
-  { value: 'remarks', label: 'Remarks', type: 'textarea' },
+  { value: 'status', label: 'Status', type: 'select', options: ['Open', 'In Progress', 'Closed'], required: true },
+  { value: 'priority', label: 'Priority', type: 'select', options: ['High', 'Medium', 'Low'], required: true },
+  { value: 'assignedTo', label: 'Assigned To', type: 'text', required: true },
   { value: 'createdAt', label: 'Created At', type: 'datetime', hidden: true }
 ];
 
@@ -108,7 +105,7 @@ export const defaultVisibleColumns = {
   staff: ['firstName', 'lastName', 'empId', 'mobileNo', 'emailId', 'designation', 'team', 'status'],
   driver: ['firstName', 'lastName', 'driverId', 'mobileNo', 'licenseNo', 'vehicleNo', 'status'],
   vendor: ['vendorName', 'vendorId', 'contactPerson', 'mobileNo', 'emailId', 'category', 'status'],
-  support: ['name', 'supportId', 'department', 'mobileNo', 'emailId', 'company', 'status'],
+  support: ['subject', 'raisedBy', 'department', 'status', 'priority', 'assignedTo', 'createdAt'],
   important: ['name', 'category', 'contactNo', 'description', 'priority']
 };
 
@@ -117,8 +114,8 @@ export const collectionNames = {
   staff: 'staff',
   driver: 'drivers',
   vendor: 'vendors',
-  support: 'supports',
-  important: 'importantContacts'
+  support: 'support',
+  important: 'important'
 };
 
 // Define filter definitions for each category
@@ -139,7 +136,8 @@ export const filterDefinitions = {
   ],
   support: [
     { name: 'department', label: 'Department', itemField: 'department' },
-    { name: 'status', label: 'Status', itemField: 'status' }
+    { name: 'status', label: 'Status', itemField: 'status' },
+    { name: 'priority', label: 'Priority', itemField: 'priority' }
   ],
   important: [
     { name: 'category', label: 'Category', itemField: 'category' },

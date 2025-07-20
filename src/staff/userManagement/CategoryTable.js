@@ -11,7 +11,21 @@ export default function CategoryTable({ category, collectionName, columnDefiniti
   const [error, setError] = useState(null);
   const [filters, setFilters] = useState({});
   const [showColumnPicker, setShowColumnPicker] = useState(false);
-  const [visibleColumns, setVisibleColumns] = useState(initialVisibleColumns || []);
+  // Show all columns by default if initialVisibleColumns is not provided or empty
+  const [visibleColumns, setVisibleColumns] = useState(
+    initialVisibleColumns && initialVisibleColumns.length > 0
+      ? initialVisibleColumns
+      : columnDefinitions.map(col => col.value)
+  );
+
+  // Always reset visibleColumns to all columns for the current category when columns or defaults change
+  useEffect(() => {
+    setVisibleColumns(
+      initialVisibleColumns && initialVisibleColumns.length > 0
+        ? initialVisibleColumns
+        : columnDefinitions.map(col => col.value)
+    );
+  }, [columnDefinitions, initialVisibleColumns]);
   const [showAddItem, setShowAddItem] = useState(false);
   const [editItem, setEditItem] = useState(null);
   const [toast, setToast] = useState({ show: false, msg: '', type: 'success' });
@@ -28,12 +42,16 @@ export default function CategoryTable({ category, collectionName, columnDefiniti
 
         // Sort by appropriate fields if available
         itemsList = itemsList.sort((a, b) => {
-          if (a.firstName && b.firstName) {
-            return a.firstName.localeCompare(b.firstName);
-          } else if (a.name && b.name) {
-            return a.name.localeCompare(b.name);
-          } else if (a.vendorName && b.vendorName) {
-            return a.vendorName.localeCompare(b.vendorName);
+          if (a && b) {
+            if (a.firstName && b.firstName) {
+              return a.firstName.localeCompare(b.firstName);
+            } else if (a.name && b.name) {
+              return a.name.localeCompare(b.name);
+            } else if (a.vendorName && b.vendorName) {
+              return a.vendorName.localeCompare(b.vendorName);
+            } else if (a.subject && b.subject) {
+              return a.subject.localeCompare(b.subject);
+            }
           }
           return 0;
         });
@@ -41,9 +59,17 @@ export default function CategoryTable({ category, collectionName, columnDefiniti
         // Fetch reference data for filters
         const filterMapsData = {};
         
-        if (filterDefinitions && filterDefinitions.length > 0) {
-          for (const filter of filterDefinitions) {
-            if (filter.refCollection) {
+        if (filterDefinitions) {
+          // Handle both array and object formats of filterDefinitions
+          const filtersToProcess = Array.isArray(filterDefinitions) 
+            ? filterDefinitions 
+            : Object.keys(filterDefinitions).map(key => ({
+                name: key,
+                ...filterDefinitions[key]
+              }));
+          
+          for (const filter of filtersToProcess) {
+            if (filter && filter.refCollection) {
               const refSnapshot = await getDocs(collection(db, filter.refCollection));
               const refMap = {};
               refSnapshot.docs.forEach(doc => {
@@ -59,26 +85,41 @@ export default function CategoryTable({ category, collectionName, columnDefiniti
 
         setItems(itemsList);
         setFilterMaps(filterMapsData);
+        // Always show all columns if initialVisibleColumns is not set or empty
+        setVisibleColumns(
+          initialVisibleColumns && initialVisibleColumns.length > 0
+            ? initialVisibleColumns
+            : columnDefinitions.map(col => col.value)
+        );
       } catch (err) {
         console.error("Error fetching data:", err);
         setError('Failed to fetch data. Please try again.');
+        // Set empty items to prevent errors
+        setItems([]);
+        setFilterMaps({});
       }
       setLoading(false);
     };
     fetchData();
-  }, [collectionName, filterDefinitions]);
+  }, [collectionName, filterDefinitions, columnDefinitions, initialVisibleColumns]);
 
   // Filtering logic
   const filteredItems = items.filter(item => {
     // Apply all active filters
     for (const filterKey in filters) {
       if (filters[filterKey] && filters[filterKey].length > 0) {
-        const filterDef = filterDefinitions.find(fd => fd.name === filterKey);
+        let filterDef;
+        // Handle both array and object formats of filterDefinitions
+        if (Array.isArray(filterDefinitions)) {
+          filterDef = filterDefinitions.find(fd => fd.name === filterKey);
+        } else {
+          filterDef = filterDefinitions[filterKey];
+        }
         if (filterDef) {
+          const itemFieldName = filterDef.itemField || filterKey;
           const itemValue = filterDef.refCollection 
-            ? filterMaps[filterKey][item[filterDef.itemField]] || item[filterDef.itemField] || ''
-            : item[filterDef.itemField] || '';
-            
+            ? (item && filterMaps[filterKey][item[itemFieldName]]) || (item && item[itemFieldName]) || ''
+            : (item && item[itemFieldName]) || '';
           if (!filters[filterKey].includes(itemValue)) return false;
         }
       }
@@ -106,13 +147,27 @@ export default function CategoryTable({ category, collectionName, columnDefiniti
 
   // Generate filter options for each filter
   const getFilterOptions = (filterName) => {
-    const filterDef = filterDefinitions.find(fd => fd.name === filterName);
-    if (!filterDef) return [];
-    
-    if (filterDef.refCollection) {
-      return Object.values(filterMaps[filterName] || {});
-    } else {
-      return [...new Set(items.map(item => item[filterDef.itemField]).filter(Boolean))];
+    // Check if filterDefinitions is an array or an object
+    if (!filterDefinitions) return [];
+    // If it's an array, find the filter definition
+    if (Array.isArray(filterDefinitions)) {
+      const filterDef = filterDefinitions.find(fd => fd.name === filterName);
+      if (!filterDef) return [];
+      if (filterDef.refCollection) {
+        return Object.values(filterMaps[filterName] || {});
+      } else {
+        return [...new Set(items.map(item => item && item[filterDef.itemField]).filter(Boolean))];
+      }
+    } 
+    // If it's an object with filter definitions
+    else {
+      const filterDef = filterDefinitions[filterName];
+      if (!filterDef) return [];
+      if (filterDef.refCollection) {
+        return Object.values(filterMaps[filterName] || {});
+      } else {
+        return [...new Set(items.map(item => item && (filterDef.itemField ? item[filterDef.itemField] : item[filterName])).filter(Boolean))];
+      }
     }
   };
 
@@ -142,55 +197,67 @@ export default function CategoryTable({ category, collectionName, columnDefiniti
       `}</style>
       <h3>{category} List</h3>
       {/* Add/Edit/Delete buttons */}
-      <div className="mb-2" style={{ display: 'flex', justifyContent: 'flex-start', alignItems: 'center', gap: 8 }}>
-        <button
-          className="btn btn-primary sharp-btn"
-          style={{ marginBottom: 0, borderRadius: 0, fontSize: 13, padding: '4px 14px', border: '1px solid #888' }}
-          onClick={() => setShowAddItem(true)}
-        >Add {category}</button>
-        <button
-          className="btn btn-secondary sharp-btn"
-          style={{ marginBottom: 0, borderRadius: 0, fontSize: 13, padding: '4px 14px', border: '1px solid #888' }}
-          disabled={!editItem}
-          onClick={() => setShowAddItem('edit')}
-        >Edit {category}</button>
-        <button
-          className="btn btn-danger sharp-btn"
-          style={{ marginBottom: 0, borderRadius: 0, fontSize: 13, padding: '4px 14px', border: '1px solid #a30000', background: '#a30000', color: '#fff' }}
-          disabled={!editItem}
-          onClick={() => {
-            if (!editItem) return;
-            setToast({
-              show: true,
-              msg: (
-                <span>
-                  Are you sure you want to delete this {category.toLowerCase()}?&nbsp;
-                  <button
-                    style={{ background: '#a30000', color: '#fff', border: 'none', borderRadius: 0, padding: '2px 10px', marginLeft: 8, fontSize: 13, fontWeight: 500, cursor: 'pointer' }}
-                    onClick={async (e) => {
-                      e.stopPropagation();
-                      try {
-                        // Delete from Firestore
-                        await deleteDoc(doc(db, collectionName, editItem.id));
-                        setItems(prev => prev.filter(u => u.id !== editItem.id));
-                        setEditItem(null);
-                        setToast({ show: true, msg: `${category} deleted successfully!`, type: 'success' });
-                      } catch (err) {
-                        console.error("Error deleting item:", err);
-                        setToast({ show: true, msg: `Error deleting ${category.toLowerCase()}.`, type: 'error' });
-                      }
-                    }}
-                  >Confirm</button>
-                  <button
-                    style={{ background: '#fff', color: '#a30000', border: '1px solid #a30000', borderRadius: 0, padding: '2px 10px', marginLeft: 8, fontSize: 13, fontWeight: 500, cursor: 'pointer' }}
-                    onClick={(e) => { e.stopPropagation(); setToast({ show: false, msg: '', type: 'success' }); }}
-                  >Cancel</button>
-                </span>
-              ),
-              type: 'error',
-            });
-          }}
-        >Delete {category}</button>
+      <div className="mb-2" style={{ display: 'flex', alignItems: 'center', gap: 8, justifyContent: 'space-between' }}>
+        <div style={{ display: 'flex', gap: 8 }}>
+          <button
+            className="btn btn-primary sharp-btn"
+            style={{ marginBottom: 0, borderRadius: 0, fontSize: 13, padding: '4px 14px', border: '1px solid #888' }}
+            onClick={() => setShowAddItem(true)}
+          >Add {category}</button>
+          <button
+            className="btn btn-secondary sharp-btn"
+            style={{ marginBottom: 0, borderRadius: 0, fontSize: 13, padding: '4px 14px', border: '1px solid #888' }}
+            disabled={!editItem}
+            onClick={() => setShowAddItem('edit')}
+          >Edit {category}</button>
+          <button
+            className="btn btn-danger sharp-btn"
+            style={{ marginBottom: 0, borderRadius: 0, fontSize: 13, padding: '4px 14px', border: '1px solid #a30000', background: '#a30000', color: '#fff' }}
+            disabled={!editItem}
+            onClick={() => {
+              if (!editItem) return;
+              setToast({
+                show: true,
+                msg: (
+                  <span>
+                    Are you sure you want to delete this {category.toLowerCase()}?&nbsp;
+                    <button
+                      style={{ background: '#a30000', color: '#fff', border: 'none', borderRadius: 0, padding: '2px 10px', marginLeft: 8, fontSize: 13, fontWeight: 500, cursor: 'pointer' }}
+                      onClick={async (e) => {
+                        e.stopPropagation();
+                        try {
+                          // Delete from Firestore
+                          await deleteDoc(doc(db, collectionName, editItem.id));
+                          setItems(prev => prev.filter(u => u.id !== editItem.id));
+                          setEditItem(null);
+                          setToast({ show: true, msg: `${category} deleted successfully!`, type: 'success' });
+                        } catch (err) {
+                          console.error("Error deleting item:", err);
+                          setToast({ show: true, msg: `Error deleting ${category.toLowerCase()}.`, type: 'error' });
+                        }
+                      }}
+                    >Confirm</button>
+                    <button
+                      style={{ background: '#fff', color: '#a30000', border: '1px solid #a30000', borderRadius: 0, padding: '2px 10px', marginLeft: 8, fontSize: 13, fontWeight: 500, cursor: 'pointer' }}
+                      onClick={(e) => { e.stopPropagation(); setToast({ show: false, msg: '', type: 'success' }); }}
+                    >Cancel</button>
+                  </span>
+                ),
+                type: 'error',
+              });
+            }}
+          >Delete {category}</button>
+        </div>
+        {/* Right-aligned reconfigure column button for support and important sections */}
+        {(category === 'Support' || category === 'Important') && (
+          <div style={{ marginLeft: 'auto' }}>
+            <button
+              className="btn btn-outline-secondary sharp-btn"
+              style={{ borderRadius: 0, fontSize: 13, padding: '4px 14px', border: '1px solid #888' }}
+              onClick={() => setShowColumnPicker(true)}
+            >Reconfigure Columns</button>
+          </div>
+        )}
       </div>
       {/* Add/Edit Item Modal */}
       {(showAddItem || showAddItem === 'edit') && (
@@ -235,19 +302,36 @@ export default function CategoryTable({ category, collectionName, columnDefiniti
         </div>
       )}
       {/* Filter row */}
-      {filterDefinitions && filterDefinitions.length > 0 && (
+      {filterDefinitions && (
         <div className="mb-2" style={{ display: 'flex', alignItems: 'center', fontSize: 13, margin: 0, padding: 0 }}>
           <div style={{ flex: 1, display: 'flex', gap: 8 }}>
-            {filterDefinitions.map(filterDef => (
-              <div key={filterDef.name} style={{ flex: 1, minWidth: 0 }}>
-                <MultiSelect
-                  options={getFilterOptions(filterDef.name)}
-                  value={filters?.[filterDef.name] || []}
-                  onChange={vals => setFilters(f => ({ ...f, [filterDef.name]: vals }))}
-                  placeholder={`All ${filterDef.label || filterDef.name}`}
-                />
-              </div>
-            ))}
+            {(() => {
+              // Convert filter definitions to array format for rendering
+              const filterArray = Array.isArray(filterDefinitions) 
+                ? filterDefinitions 
+                : Object.keys(filterDefinitions).map(key => ({
+                    name: key,
+                    label: filterDefinitions[key].label || key,
+                    ...filterDefinitions[key]
+                  }));
+
+              return filterArray.map(filterDef => {
+                const options = getFilterOptions(filterDef.name);
+                // Default to all options selected if not set
+                const allSelected = options.length > 0 && (!filters?.[filterDef.name] || filters[filterDef.name].length === 0);
+                const value = allSelected ? options : (filters?.[filterDef.name] || []);
+                return (
+                  <div key={filterDef.name} style={{ flex: 1, minWidth: 0 }}>
+                    <MultiSelect
+                      options={options}
+                      value={value}
+                      onChange={vals => setFilters(f => ({ ...f, [filterDef.name]: vals }))}
+                      placeholder={`All ${filterDef.label || filterDef.name}`}
+                    />
+                  </div>
+                );
+              });
+            })()}
             <div style={{ flex: 1, minWidth: 0 }}>
               <div style={{ position: 'relative', width: '100%' }}>
                 <button
@@ -283,25 +367,32 @@ export default function CategoryTable({ category, collectionName, columnDefiniti
               </tr>
             </thead>
             <tbody>
-              {filteredItems.map(item => (
+              {filteredItems.filter(Boolean).map(item => (
                 <tr key={item.id}>
                   {columnDefinitions.filter(col => visibleColumns.includes(col.value)).map((col, index) => {
+                    let cellValue = item && item[col.value];
+                    // Convert Firestore Timestamp to readable string
+                    if (cellValue && typeof cellValue === 'object' && cellValue.seconds !== undefined && cellValue.nanoseconds !== undefined) {
+                      try {
+                        cellValue = new Date(cellValue.seconds * 1000).toLocaleString();
+                      } catch (e) {
+                        cellValue = '';
+                      }
+                    }
                     // Make first column clickable
                     if (index === 0) {
                       return (
                         <td key={col.value} style={{ cursor: 'pointer', color: '#3d0066', textDecoration: 'underline' }}
                           onClick={() => setEditItem(item)}
-                        >{item[col.value] || '-'}</td>
+                        >{cellValue || '-'}</td>
                       );
                     }
-                    
                     // Handle reference fields
                     if (col.isRef && filterMaps[col.refMapName]) {
-                      return <td key={col.value}>{filterMaps[col.refMapName][item[col.value]] || item[col.value] || '-'}</td>;
+                      return <td key={col.value}>{filterMaps[col.refMapName][cellValue] || cellValue || '-'}</td>;
                     }
-                    
                     // Default rendering
-                    return <td key={col.value}>{item[col.value] || '-'}</td>;
+                    return <td key={col.value}>{cellValue || '-'}</td>;
                   })}
                 </tr>
               ))}
