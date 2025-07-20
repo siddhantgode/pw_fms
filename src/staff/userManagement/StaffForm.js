@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import './StaffForm.css';
 import { db } from '../../firebase';
 import { collection, addDoc, getDocs, updateDoc, doc } from 'firebase/firestore';
 
@@ -87,12 +88,9 @@ export default function StaffForm({ onUserAdded, onClose, showToast, editUser, m
           return;
         }
       }
-      if (editUser) {
-        // Update user in Firestore
+      if (mode === 'edit' && editUser) {
         const userRef = doc(db, 'users', editUser.id);
-        await updateDoc(userRef, {
-          ...formData,
-        });
+        await updateDoc(userRef, formData);
         if (showToast) showToast('User updated successfully!', 'success');
         if (onUserAdded) onUserAdded({ ...editUser, ...formData });
         if (onClose) onClose();
@@ -108,117 +106,143 @@ export default function StaffForm({ onUserAdded, onClose, showToast, editUser, m
         if (onClose) onClose();
       }
     } catch (err) {
-      setError(err.message || 'Failed to add user.');
+      setError(err.message || 'Failed to save user.');
     }
     setLoading(false);
   };
 
+// Responsive modal and grid rendering
+const fields = [
+  { name: 'firstName', label: 'First Name', required: true },
+  { name: 'lastName', label: 'Last Name', required: true },
+  { name: 'dob', label: 'Date of Birth', type: 'date' },
+  { name: 'empId', label: 'Employee ID' },
+  { name: 'doj', label: 'Date of Joining', type: 'date' },
+  { name: 'teamId', label: 'Team', type: 'select', options: teamOptions },
+  { name: 'designationId', label: 'Designation', type: 'select', options: designationOptions },
+  { name: 'primaryLocation', label: 'Primary Location' },
+  { name: 'address', label: 'Address' },
+  { name: 'phNumber', label: 'Phone Number' },
+  { name: 'emailId', label: 'Email ID', required: true },
+  { name: 'aadhar', label: 'Aadhar' },
+  { name: 'status', label: 'Status', type: 'select', options: ['Active', 'Inactive', 'On Leave'] },
+];
+
+// Helper to split fields into up to 3 rows with even distribution
+const splitFieldsIntoRows = (fields, maxRows = 3) => {
+  if (!fields || fields.length === 0) return [];
+  
+  // Determine actual number of rows needed, capping at maxRows
+  const numRows = Math.min(maxRows, fields.length);
+  const itemsPerRow = Math.ceil(fields.length / numRows);
+  
+  // Create rows with items distributed evenly
+  const rows = [];
+  for (let i = 0; i < numRows; i++) {
+    const startIdx = i * itemsPerRow;
+    const endIdx = Math.min(startIdx + itemsPerRow, fields.length);
+    
+    // Only add row if there are fields to display
+    if (startIdx < fields.length) {
+      rows.push(fields.slice(startIdx, endIdx));
+    }
+  }
+  
+  return rows;
+};
+
+const fieldRows = splitFieldsIntoRows(fields, 3);
+
   return (
-    <>
-      <div>
-        <div style={{
-          background: '#3d0066',
-          color: '#fff',
-          borderTopLeftRadius: 0,
-          borderTopRightRadius: 0,
-          borderBottomLeftRadius: 0,
-          borderBottomRightRadius: 0,
-          padding: '14px 24px 10px 24px',
-          margin: '-24px -24px 18px -24px',
-          minHeight: 40,
-          display: 'flex',
-          alignItems: 'center',
-        }}>
-          <h4 style={{ fontSize: 20, margin: 0, color: '#fff', fontWeight: 600, letterSpacing: 0.5 }}>{mode === 'edit' ? 'Edit User' : 'Add User'}</h4>
+    <div className="staff-modal-overlay">
+      <div className="staff-modal">
+        <div className="category-modal-header">
+          <h4 className="category-modal-title">
+            {mode === 'edit' ? 'Edit Staff' : 'Add Staff'}
+          </h4>
         </div>
-        <form onSubmit={handleSubmit} style={{ fontSize: 13 }}>
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
-            {/* Row 1 */}
-            <div style={{ display: 'flex', gap: 10 }}>
-              <div style={{ flex: 1 }}>
-                <label className="form-label" htmlFor="firstName">First Name *</label>
-                <input name="firstName" id="firstName" value={formData.firstName} onChange={handleChange} className="form-control form-control-sm" style={{ borderRadius: 0, border: '1px solid #888' }} required />
+        <div className="category-modal-inner">
+          <form onSubmit={handleSubmit} style={{ fontSize: 13 }}>
+            <div className="container-fluid">
+              {fieldRows.map((rowFields, rowIdx) => (
+                <div className="row staff-form-row" key={`row-${rowIdx}`}>
+                  {rowFields.map((field, idx) => {
+                    // Calculate dynamic column width based on number of fields in the row
+                    const colWidth = Math.floor(12 / rowFields.length);
+                    // Use appropriate column class for responsive layout
+                    const colClass = `col-12 col-md-${colWidth > 6 ? 6 : colWidth} mb-3`;
+                    
+                    return (
+                      <div key={`field-${field.name}-${idx}`} className={colClass}>
+                        <label htmlFor={field.name} className="form-label">
+                          {field.label} {field.required && <span style={{ color: '#a30000' }}>*</span>}
+                        </label>
+                        {field.type === 'select' ? (
+                          <select
+                            id={field.name}
+                            name={field.name}
+                            value={formData[field.name] || ''}
+                            onChange={handleChange}
+                            className="form-control form-control-sm"
+                            required={field.required}
+                          >
+                            <option value="">Select {field.label}</option>
+                            {field.options && field.options.map((option, oidx) => (
+                              <option key={`${field.name}-opt-${oidx}`} value={option.value || option}>
+                                {option.label || option}
+                              </option>
+                            ))}
+                          </select>
+                        ) : field.type === 'textarea' ? (
+                          <textarea
+                            id={field.name}
+                            name={field.name}
+                            value={formData[field.name] || ''}
+                            onChange={handleChange}
+                            className="form-control form-control-sm"
+                            required={field.required}
+                            rows={3}
+                          ></textarea>
+                        ) : (
+                          <input
+                            type={field.type || 'text'}
+                            id={field.name}
+                            name={field.name}
+                            value={formData[field.name] || ''}
+                            onChange={handleChange}
+                            className="form-control form-control-sm"
+                            required={field.required}
+                          />
+                        )}
+                      </div>
+                    );
+                  })}
+                </div>
+              ))}
+              <div className="row">
+                <div className="col-12 d-flex justify-content-end staff-form-actions" style={{ gap: 8 }}>
+                  <button 
+                    type="button" 
+                    className="btn btn-secondary btn-sm" 
+                    onClick={onClose} 
+                    disabled={loading}
+                  >
+                    Cancel
+                  </button>
+                  <button 
+                    type="submit" 
+                    className="btn btn-primary btn-sm category-save-btn" 
+                    disabled={loading}
+                  >
+                    {mode === 'edit' ? `Save Staff` : `Add Staff`}
+                  </button>
+                </div>
               </div>
-              <div style={{ flex: 1 }}>
-                <label className="form-label" htmlFor="lastName">Last Name *</label>
-                <input name="lastName" id="lastName" value={formData.lastName} onChange={handleChange} className="form-control form-control-sm" style={{ borderRadius: 0, border: '1px solid #888' }} required />
-              </div>
-              <div style={{ flex: 1 }}>
-                <label className="form-label" htmlFor="dob">Date of Birth</label>
-                <input type="date" name="dob" id="dob" value={formData.dob} onChange={handleChange} className="form-control form-control-sm" style={{ borderRadius: 0, border: '1px solid #888' }} />
-              </div>
-              <div style={{ flex: 1 }}>
-                <label className="form-label" htmlFor="empId">Employee ID</label>
-                <input name="empId" id="empId" value={formData.empId} onChange={handleChange} className="form-control form-control-sm" style={{ borderRadius: 0, border: '1px solid #888' }} />
-              </div>
-              <div style={{ flex: 1 }}>
-                <label className="form-label" htmlFor="doj">Date of Joining</label>
-                <input type="date" name="doj" id="doj" value={formData.doj} onChange={handleChange} className="form-control form-control-sm" style={{ borderRadius: 0, border: '1px solid #888' }} />
-              </div>
+              {error && <div className="alert alert-danger mt-3 w-100">{error}</div>}
             </div>
-            {/* Row 2 */}
-            <div style={{ display: 'flex', gap: 10 }}>
-              <div style={{ flex: 1 }}>
-                <label className="form-label" htmlFor="teamId">Team</label>
-                <select name="teamId" id="teamId" value={formData.teamId} onChange={handleChange} className="form-control form-control-sm" style={{ borderRadius: 0, border: '1px solid #888' }}>
-                  <option value="">Select Team</option>
-                  {teamOptions.map(opt => <option key={opt.value} value={opt.value}>{opt.label}</option>)}
-                </select>
-              </div>
-              <div style={{ flex: 1 }}>
-                <label className="form-label" htmlFor="designationId">Designation</label>
-                <select name="designationId" id="designationId" value={formData.designationId} onChange={handleChange} className="form-control form-control-sm" style={{ borderRadius: 0, border: '1px solid #888' }}>
-                  <option value="">Select Designation</option>
-                  {designationOptions.map(opt => <option key={opt.value} value={opt.value}>{opt.label}</option>)}
-                </select>
-              </div>
-              <div style={{ flex: 1 }}>
-                <label className="form-label" htmlFor="primaryLocation">Primary Location</label>
-                <select name="primaryLocation" id="primaryLocation" value={formData.primaryLocation} onChange={handleChange} className="form-control form-control-sm" style={{ borderRadius: 0, border: '1px solid #888' }}>
-                  <option value="">Select Location</option>
-                  <option value="Pearl">Pearl</option>
-                  <option value="Wellness">Wellness</option>
-                </select>
-              </div>
-              <div style={{ flex: 1 }}>
-                <label className="form-label" htmlFor="address">Address</label>
-                <input name="address" id="address" value={formData.address} onChange={handleChange} className="form-control form-control-sm" style={{ borderRadius: 0, border: '1px solid #888' }} />
-              </div>
-              <div style={{ flex: 1 }}>
-                <label className="form-label" htmlFor="phNumber">Phone Number</label>
-                <input name="phNumber" id="phNumber" value={formData.phNumber} onChange={handleChange} className="form-control form-control-sm" style={{ borderRadius: 0, border: '1px solid #888' }} />
-              </div>
-            </div>
-            {/* Row 3 */}
-            <div style={{ display: 'flex', gap: 10 }}>
-              <div style={{ flex: 1 }}>
-                <label className="form-label" htmlFor="emailId">Email ID *</label>
-                <input type="email" name="emailId" id="emailId" value={formData.emailId} onChange={handleChange} className="form-control form-control-sm" style={{ borderRadius: 0, border: '1px solid #888' }} required />
-              </div>
-              <div style={{ flex: 1 }}>
-                <label className="form-label" htmlFor="aadhar">Aadhar</label>
-                <input name="aadhar" id="aadhar" value={formData.aadhar} onChange={handleChange} className="form-control form-control-sm" style={{ borderRadius: 0, border: '1px solid #888' }} />
-              </div>
-              <div style={{ flex: 1 }}>
-                <label className="form-label" htmlFor="status">Status</label>
-                <select name="status" id="status" value={formData.status} onChange={handleChange} className="form-control form-control-sm" style={{ borderRadius: 0, border: '1px solid #888' }}>
-                  <option value="">Select Status</option>
-                  <option value="Active">Active</option>
-                  <option value="Inactive">Inactive</option>
-                </select>
-              </div>
-              <div style={{ flex: 1 }}></div>
-              <div style={{ flex: 1 }}></div>
-            </div>
-          </div>
-          <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 8, marginTop: 12 }}>
-            <button type="button" className="btn btn-secondary btn-sm" style={{ borderRadius: 0, border: '1px solid #888' }} onClick={onClose} disabled={loading}>Cancel</button>
-            <button type="submit" className="btn btn-primary btn-sm" style={{ borderRadius: 0, border: '1px solid #888', background: '#3d0066', color: '#fff' }} disabled={loading}>{mode === 'edit' ? 'Edit User' : 'Add User'}</button>
-          </div>
-          {success && <div className="alert alert-success mt-2">User added successfully!</div>}
-          {error && <div className="alert alert-danger mt-2">{error}</div>}
-        </form>
+          </form>
+        </div>
       </div>
-    </>
+    </div>
   );
 }

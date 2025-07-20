@@ -32,14 +32,47 @@ const UserManagement = () => {
   return (
     <div className="container-fluid mt-4 px-4">
       <h1 className="mb-2">User Management</h1>
-      
+      <style>{`
+        .um-tiles-grid {
+          display: grid !important;
+          grid-template-columns: repeat(5, 1fr) !important;
+          gap: 16px !important;
+          margin-bottom: 24px !important;
+          width: 100% !important;
+        }
+        @media (max-width: 900px) {
+          .um-tiles-grid {
+            grid-template-columns: repeat(3, 1fr) !important;
+          }
+        }
+        @media (max-width: 768px) {
+          .um-tiles-grid {
+            grid-template-columns: repeat(2, 1fr) !important;
+            gap: 12px !important;
+            margin-bottom: 24px !important;
+            width: 100% !important;
+          }
+        }
+        @media (max-width: 480px) {
+          .um-tiles-grid {
+            grid-template-columns: 1fr 1fr !important;
+            gap: 8px !important;
+            width: 100% !important;
+          }
+        }
+        .um-tile {
+          width: 100% !important;
+          display: flex !important;
+          justify-content: center !important;
+          align-items: center !important;
+        }
+      `}</style>
       {/* Category navigation */}
-      <div className="row justify-content-center" style={{ gap: '16px', marginBottom: '24px' }}>
+      <div className="um-tiles-grid">
         {categories.map(({ label, icon }) => (
           <div
             key={label}
-            className="col-6 col-md-2 mb-2 d-flex justify-content-center"
-            style={{ minWidth: 120 }}
+            className="um-tile"
           >
             <div
               className="tile shadow-sm d-flex flex-row align-items-center justify-content-start"
@@ -62,6 +95,9 @@ const UserManagement = () => {
                 outline: activeCategory === label ? '2px solid #3d0066' : 'none',
                 outlineOffset: 0,
                 position: 'relative',
+                display: 'flex',
+                alignItems: 'center',
+                flexDirection: 'row',
               }}
             >
               <FontAwesomeIcon icon={icon} size="lg" style={{ marginRight: 10, color: activeCategory === label ? '#fff' : '#3d0066', fontSize: 18, transition: 'color 0.2s' }} />

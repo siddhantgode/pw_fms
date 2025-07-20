@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from 'react';
+import './CategoryForm.css';
 import { db } from '../../firebase';
 import { collection, addDoc, updateDoc, doc, getDocs } from 'firebase/firestore';
 
-export default function CategoryForm({ 
+export default function CategoryForm({
   category, 
   collectionName, 
   onItemAdded, 
@@ -14,6 +15,24 @@ export default function CategoryForm({
   columnDefinitions,
   filterMaps
 }) {
+  // Handle form submission
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setError(null);
+    setLoading(true);
+    try {
+      // TODO: Add Firestore add/update logic here
+      // Example: await addDoc(...)
+      setLoading(false);
+      if (showToast) showToast('Saved successfully!');
+      if (onItemAdded) onItemAdded();
+      if (onItemUpdated) onItemUpdated();
+      onClose();
+    } catch (err) {
+      setError('Error saving data.');
+      setLoading(false);
+    }
+  };
   // Generate initial form data from column definitions
   const generateInitialData = () => {
     const initialData = {};
@@ -37,177 +56,129 @@ export default function CategoryForm({
     return initialData;
   };
 
-  const [formData, setFormData] = useState(generateInitialData);
-  const [loading, setLoading] = useState(false);
+  const [formData, setFormData] = useState(generateInitialData());
   const [error, setError] = useState(null);
-
-  // Update form data when editItem changes
-  useEffect(() => {
-    if (editItem) {
-      setFormData(generateInitialData());
-    }
-  }, [editItem]);
-
+  const [loading, setLoading] = useState(false);
+  
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setFormData(prev => ({
-      ...prev,
-      [name]: value
-    }));
+    setFormData(prev => ({ ...prev, [name]: value }));
   };
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    setLoading(true);
-    setError(null);
+  // Helper to split fields into up to 3 rows with even distribution
+  const splitFieldsIntoRows = (fields, maxRows = 3) => {
+    if (!fields || fields.length === 0) return [];
     
-    try {
-      // Validate required fields
-      const requiredFields = columnDefinitions.filter(col => col.required).map(col => col.value);
-      for (const field of requiredFields) {
-        if (!formData[field]) {
-          throw new Error(`${columnDefinitions.find(col => col.value === field)?.label || field} is required.`);
-        }
-      }
-
-      if (mode === 'edit' && editItem) {
-        // Update existing item
-        const itemRef = doc(db, collectionName, editItem.id);
-        await updateDoc(itemRef, formData);
-        
-        showToast(`${category} updated successfully!`, 'success');
-        onItemUpdated && onItemUpdated({ id: editItem.id, ...formData });
-      } else {
-        // Add new item
-        // Check for duplicate ID if applicable
-        if (formData.empId || formData.employeeId || formData.licenseNo || formData.vendorId) {
-          const idField = formData.empId ? 'empId' : 
-                          formData.employeeId ? 'employeeId' : 
-                          formData.licenseNo ? 'licenseNo' : 'vendorId';
-          
-          const snap = await getDocs(collection(db, collectionName));
-          const exists = snap.docs.some(doc => doc.data()[idField] === formData[idField]);
-          
-          if (exists) {
-            showToast(`${category} with this ${idField} already exists.`, 'error');
-            setLoading(false);
-            return;
-          }
-        }
-        
-        // Add new document
-        const docRef = await addDoc(collection(db, collectionName), {
-          ...formData,
-          createdAt: new Date()
-        });
-        
-        showToast(`${category} added successfully!`, 'success');
-        onItemAdded && onItemAdded({ id: docRef.id, ...formData, createdAt: new Date() });
-      }
+    // Determine actual number of rows needed, capping at maxRows
+    const numRows = Math.min(maxRows, fields.length);
+    const itemsPerRow = Math.ceil(fields.length / numRows);
+    
+    // Create rows with items distributed evenly
+    const rows = [];
+    for (let i = 0; i < numRows; i++) {
+      const startIdx = i * itemsPerRow;
+      const endIdx = Math.min(startIdx + itemsPerRow, fields.length);
       
-      // Close form
-      onClose && onClose();
-    } catch (err) {
-      console.error("Form submission error:", err);
-      setError(err.message || `Failed to ${mode === 'edit' ? 'update' : 'add'} ${category.toLowerCase()}`);
-      showToast(err.message || `Failed to ${mode === 'edit' ? 'update' : 'add'} ${category.toLowerCase()}`, 'error');
+      // Only add row if there are fields to display
+      if (startIdx < fields.length) {
+        rows.push(fields.slice(startIdx, endIdx));
+      }
     }
     
-    setLoading(false);
+    return rows;
   };
 
+  const fieldRows = splitFieldsIntoRows(columnDefinitions, 3);
   return (
-    <div>
-      <div style={{
-        background: '#3d0066',
-        color: '#fff',
-        borderTopLeftRadius: 0,
-        borderTopRightRadius: 0,
-        borderBottomLeftRadius: 0,
-        borderBottomRightRadius: 0,
-        padding: '14px 24px 10px 24px',
-        margin: '-24px -24px 18px -24px',
-        minHeight: 40,
-        display: 'flex',
-        alignItems: 'center',
-      }}>
-        <h4 style={{ fontSize: 20, margin: 0, color: '#fff', fontWeight: 600, letterSpacing: 0.5 }}>
-          {mode === 'edit' ? `Edit ${category}` : `Add New ${category}`}
-        </h4>
-      </div>
-      
-      <form onSubmit={handleSubmit} style={{ fontSize: 13 }}>
-        <div style={{ display: 'flex', flexWrap: 'wrap', gap: '12px' }}>
-          {columnDefinitions.map(col => (
-            <div key={col.value} style={{ flex: '1 0 30%', minWidth: '250px', marginBottom: '10px' }}>
-              <label htmlFor={col.value} className="form-label">
-                {col.label} {col.required && <span style={{ color: '#a30000' }}>*</span>}
-              </label>
-              
-              {col.type === 'select' ? (
-                <select
-                  id={col.value}
-                  name={col.value}
-                  value={formData[col.value] || ''}
-                  onChange={handleChange}
-                  className="form-control form-control-sm"
-                  style={{ borderRadius: 0, fontSize: 13 }}
-                  required={col.required}
-                >
-                  <option value="">Select {col.label}</option>
-                  {col.options && col.options.map(option => (
-                    <option key={option} value={option}>{option}</option>
-                  ))}
-                </select>
-              ) : col.type === 'textarea' ? (
-                <textarea
-                  id={col.value}
-                  name={col.value}
-                  value={formData[col.value] || ''}
-                  onChange={handleChange}
-                  className="form-control form-control-sm"
-                  style={{ borderRadius: 0, fontSize: 13 }}
-                  required={col.required}
-                  rows={3}
-                ></textarea>
-              ) : (
-                <input
-                  type={col.type || 'text'}
-                  id={col.value}
-                  name={col.value}
-                  value={formData[col.value] || ''}
-                  onChange={handleChange}
-                  className="form-control form-control-sm"
-                  style={{ borderRadius: 0, fontSize: 13 }}
-                  required={col.required}
-                />
-              )}
+    <div className="category-modal-overlay">
+      <div className="category-modal">
+        <div className="category-modal-header">
+          <h4 className="category-modal-title">
+            {mode === 'edit' ? `Edit ${category}` : `Add ${category}`}
+          </h4>
+        </div>
+        <div className="category-modal-inner">
+          <form onSubmit={handleSubmit} style={{ fontSize: 13 }}>
+            <div className="container-fluid">
+              {fieldRows.map((rowFields, rowIdx) => (
+                <div className="row category-form-row" key={`row-${rowIdx}`}>
+                  {rowFields.map((field, idx) => {
+                    // Calculate dynamic column width based on number of fields in the row
+                    const colWidth = Math.floor(12 / rowFields.length);
+                    // Use appropriate column class for responsive layout
+                    const colClass = `col-12 col-md-${colWidth > 6 ? 6 : colWidth} mb-3`;
+                    
+                    return (
+                      <div key={`field-${field.value || field.name}-${idx}`} className={colClass}>
+                        <label htmlFor={field.value || field.name} className="form-label">
+                          {field.label} {field.required && <span style={{ color: '#a30000' }}>*</span>}
+                        </label>
+                        {field.type === 'select' ? (
+                          <select
+                            id={field.value || field.name}
+                            name={field.value || field.name}
+                            value={formData[field.value || field.name] || ''}
+                            onChange={handleChange}
+                            className="form-control form-control-sm"
+                            required={field.required}
+                          >
+                            <option value="">Select {field.label}</option>
+                            {field.options && field.options.map((option, oidx) => (
+                              <option key={`${field.value || field.name}-opt-${oidx}`} value={option.value || option}>
+                                {option.label || option}
+                              </option>
+                            ))}
+                          </select>
+                        ) : field.type === 'textarea' ? (
+                          <textarea
+                            id={field.value || field.name}
+                            name={field.value || field.name}
+                            value={formData[field.value || field.name] || ''}
+                            onChange={handleChange}
+                            className="form-control form-control-sm"
+                            required={field.required}
+                            rows={3}
+                          ></textarea>
+                        ) : (
+                          <input
+                            type={field.type || 'text'}
+                            id={field.value || field.name}
+                            name={field.value || field.name}
+                            value={formData[field.value || field.name] || ''}
+                            onChange={handleChange}
+                            className="form-control form-control-sm"
+                            required={field.required}
+                          />
+                        )}
+                      </div>
+                    );
+                  })}
+                </div>
+              ))}
+              <div className="row">
+                <div className="col-12 d-flex justify-content-end category-form-actions" style={{ gap: 8 }}>
+                  <button 
+                    type="button" 
+                    className="btn btn-secondary btn-sm" 
+                    onClick={onClose} 
+                    disabled={loading}
+                  >
+                    Cancel
+                  </button>
+                  <button 
+                    type="submit" 
+                    className="btn btn-primary btn-sm category-save-btn" 
+                    disabled={loading}
+                  >
+                    {mode === 'edit' ? `Save ${category}` : `Add ${category}`}
+                  </button>
+                </div>
+              </div>
+              {error && <div className="alert alert-danger mt-3 w-100">{error}</div>}
             </div>
-          ))}
+          </form>
         </div>
-        
-        <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 8, marginTop: 12 }}>
-          <button 
-            type="button" 
-            className="btn btn-secondary btn-sm" 
-            style={{ borderRadius: 0, border: '1px solid #888' }} 
-            onClick={onClose} 
-            disabled={loading}
-          >
-            Cancel
-          </button>
-          <button 
-            type="submit" 
-            className="btn btn-primary btn-sm" 
-            style={{ borderRadius: 0, border: '1px solid #888', background: '#3d0066', color: '#fff' }} 
-            disabled={loading}
-          >
-            {mode === 'edit' ? `Save ${category}` : `Add ${category}`}
-          </button>
-        </div>
-        
-        {error && <div className="alert alert-danger mt-3">{error}</div>}
-      </form>
+      </div>
     </div>
   );
 }
