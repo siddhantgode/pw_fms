@@ -31,54 +31,17 @@ const UserManagement = () => {
 
   return (
     <div className="container-fluid mt-4 px-4">
-      <h1 className="mb-2">User Management</h1>
-      <style>{`
-        .um-tiles-grid {
-          display: grid !important;
-          grid-template-columns: repeat(5, 1fr) !important;
-          gap: 16px !important;
-          margin-bottom: 24px !important;
-          width: 100% !important;
-        }
-        @media (max-width: 900px) {
-          .um-tiles-grid {
-            grid-template-columns: repeat(3, 1fr) !important;
-          }
-        }
-        @media (max-width: 768px) {
-          .um-tiles-grid {
-            grid-template-columns: repeat(2, 1fr) !important;
-            gap: 12px !important;
-            margin-bottom: 24px !important;
-            width: 100% !important;
-          }
-        }
-        @media (max-width: 480px) {
-          .um-tiles-grid {
-            grid-template-columns: 1fr 1fr !important;
-            gap: 8px !important;
-            width: 100% !important;
-          }
-        }
-        .um-tile {
-          width: 100% !important;
-          display: flex !important;
-          justify-content: center !important;
-          align-items: center !important;
-        }
-      `}</style>
-      {/* Category navigation */}
-      <div className="um-tiles-grid">
-        {categories.map(({ label, icon }) => (
-          <div
-            key={label}
-            className="um-tile"
-          >
+      <div className="d-flex justify-content-between align-items-center mb-3">
+        <h1 className="mb-0">User Management</h1>
+        
+        {/* Category navigation - now right-aligned in the same row as the title */}
+        <div className="d-flex gap-2">
+          {categories.map(({ label, icon }) => (
             <div
-              className="tile shadow-sm d-flex flex-row align-items-center justify-content-start"
+              key={label}
               onClick={() => setActiveCategory(label)}
               style={{
-                height: 38,
+                height: 75, // 38 * 1.3 = 49.4
                 width: 140,
                 borderRadius: 0,
                 border: activeCategory === label ? '2px solid #3d0066' : '1px solid #3d0066',
@@ -97,7 +60,8 @@ const UserManagement = () => {
                 position: 'relative',
                 display: 'flex',
                 alignItems: 'center',
-                flexDirection: 'row',
+                justifyContent: 'flex-start',
+                textAlign: 'left'
               }}
             >
               <FontAwesomeIcon icon={icon} size="lg" style={{ marginRight: 10, color: activeCategory === label ? '#fff' : '#3d0066', fontSize: 18, transition: 'color 0.2s' }} />
@@ -116,20 +80,34 @@ const UserManagement = () => {
                 }}></span>
               )}
             </div>
-          </div>
-        ))}
+          ))}
+        </div>
       </div>
+      
+      <style>{`
+        @media (max-width: 992px) {
+          .d-flex.justify-content-between.align-items-center {
+            flex-direction: column;
+            align-items: flex-start !important;
+          }
+          .d-flex.gap-2 {
+            margin-top: 15px;
+            flex-wrap: wrap;
+            justify-content: flex-start;
+          }
+        }
+      `}</style>
       
       {/* Staff table (using legacy component) */}
       {activeCategory === 'Staff' && (
-        <div className="mb-3">
+        <div className="mt-3">
           <StaffTable />
         </div>
       )}
       
       {/* Other category tables (using new generic component) */}
       {activeCategory !== 'Staff' && currentCategory && (
-        <div className="mb-3">
+        <div className="mt-3">
           <CategoryTable 
             category={currentCategory.label}
             collectionName={currentCategory.collection}

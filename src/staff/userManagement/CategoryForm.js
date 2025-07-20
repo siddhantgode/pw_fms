@@ -44,15 +44,32 @@ export default function CategoryForm({
     setError(null);
     setLoading(true);
     try {
-      // TODO: Add Firestore add/update logic here
-      // Example: await addDoc(...)
+      const timestamp = new Date();
+      const dataToSave = {
+        ...formData,
+        createdAt: editItem && editItem.createdAt ? editItem.createdAt : timestamp
+      };
+      
+      if (mode === 'edit' && editItem && editItem.id) {
+        // Update existing document
+        const docRef = doc(db, collectionName, editItem.id);
+        await updateDoc(docRef, dataToSave);
+        if (showToast) showToast(`${category} updated successfully!`);
+        if (onItemUpdated) onItemUpdated();
+      } else {
+        // Add new document
+        const docRef = await addDoc(collection(db, collectionName), dataToSave);
+        // Update the document with its own ID for easier retrieval in components
+        await updateDoc(doc(db, collectionName, docRef.id), { id: docRef.id });
+        if (showToast) showToast(`${category} added successfully!`);
+        if (onItemAdded) onItemAdded();
+      }
+      
       setLoading(false);
-      if (showToast) showToast('Saved successfully!');
-      if (onItemAdded) onItemAdded();
-      if (onItemUpdated) onItemUpdated();
       onClose();
     } catch (err) {
-      setError('Error saving data.');
+      console.error("Error saving data:", err);
+      setError(`Error saving data: ${err.message}`);
       setLoading(false);
     }
   };

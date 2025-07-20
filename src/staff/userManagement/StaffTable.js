@@ -189,7 +189,7 @@ export default function StaffTable() {
       `}</style>
       <h3>User List</h3>
       {/* Add/Edit User buttons */}
-      <div className="mb-2" style={{ display: 'flex', justifyContent: 'flex-start', alignItems: 'center', gap: 8 }}>
+      <div className="mb-2" style={{ display: 'flex', justifyContent: 'flex-end', alignItems: 'center', gap: 8 }}>
         <button
           className="btn btn-primary sharp-btn"
           style={{ marginBottom: 0, borderRadius: 0, fontSize: 13, padding: '4px 14px', border: '1px solid #888' }}

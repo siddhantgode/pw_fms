@@ -197,7 +197,7 @@ export default function CategoryTable({ category, collectionName, columnDefiniti
       `}</style>
       <h3>{category} List</h3>
       {/* Add/Edit/Delete buttons */}
-      <div className="mb-2" style={{ display: 'flex', alignItems: 'center', gap: 8, justifyContent: 'space-between' }}>
+      <div className="mb-2" style={{ display: 'flex', width: '100%', alignItems: 'center', justifyContent: 'flex-end', gap: 8 }}>
         <div style={{ display: 'flex', gap: 8 }}>
           <button
             className="btn btn-primary sharp-btn"
@@ -250,13 +250,11 @@ export default function CategoryTable({ category, collectionName, columnDefiniti
         </div>
         {/* Right-aligned reconfigure column button for support and important sections */}
         {(category === 'Support' || category === 'Important') && (
-          <div style={{ marginLeft: 'auto' }}>
-            <button
-              className="btn btn-outline-secondary sharp-btn"
-              style={{ borderRadius: 0, fontSize: 13, padding: '4px 14px', border: '1px solid #888' }}
-              onClick={() => setShowColumnPicker(true)}
-            >Reconfigure Columns</button>
-          </div>
+          <button
+            className="btn btn-outline-secondary sharp-btn"
+            style={{ borderRadius: 0, fontSize: 13, padding: '4px 14px', border: '1px solid #888', marginLeft: 12 }}
+            onClick={() => setShowColumnPicker(true)}
+          >Reconfigure Columns</button>
         )}
       </div>
       {/* Add/Edit Item Modal */}
@@ -361,38 +359,37 @@ export default function CategoryTable({ category, collectionName, columnDefiniti
           <table className="table table-bordered table-striped category-table">
             <thead>
               <tr>
-                {columnDefinitions.filter(col => visibleColumns.includes(col.value)).map(col => (
-                  <th key={col.value}>{col.label}</th>
-                ))}
+                {visibleColumns.map(colKey => {
+                  const col = columnDefinitions.find(c => c.value === colKey);
+                  return <th key={colKey}>{col ? col.label : colKey}</th>;
+                })}
               </tr>
             </thead>
             <tbody>
-              {filteredItems.filter(Boolean).map(item => (
-                <tr key={item.id}>
-                  {columnDefinitions.filter(col => visibleColumns.includes(col.value)).map((col, index) => {
-                    let cellValue = item && item[col.value];
-                    // Convert Firestore Timestamp to readable string
+              {items.map((item, rowIdx) => (
+                <tr key={item.id || rowIdx} style={{ cursor: 'pointer' }}>
+                  {visibleColumns.map((colKey, index) => {
+                    const col = columnDefinitions.find(c => c.value === colKey);
+                    let cellValue = item[colKey];
+                    // Format Firestore Timestamp objects
                     if (cellValue && typeof cellValue === 'object' && cellValue.seconds !== undefined && cellValue.nanoseconds !== undefined) {
-                      try {
-                        cellValue = new Date(cellValue.seconds * 1000).toLocaleString();
-                      } catch (e) {
-                        cellValue = '';
-                      }
+                      const date = new Date(cellValue.seconds * 1000);
+                      cellValue = date.toLocaleString();
                     }
                     // Make first column clickable
                     if (index === 0) {
                       return (
-                        <td key={col.value} style={{ cursor: 'pointer', color: '#3d0066', textDecoration: 'underline' }}
+                        <td key={colKey} style={{ cursor: 'pointer', color: '#3d0066', textDecoration: 'underline' }}
                           onClick={() => setEditItem(item)}
                         >{cellValue || '-'}</td>
                       );
                     }
                     // Handle reference fields
-                    if (col.isRef && filterMaps[col.refMapName]) {
-                      return <td key={col.value}>{filterMaps[col.refMapName][cellValue] || cellValue || '-'}</td>;
+                    if (col && col.isRef && filterMaps[col.refMapName]) {
+                      return <td key={colKey}>{filterMaps[col.refMapName][cellValue] || cellValue || '-'}</td>;
                     }
                     // Default rendering
-                    return <td key={col.value}>{cellValue || '-'}</td>;
+                    return <td key={colKey}>{cellValue || '-'}</td>;
                   })}
                 </tr>
               ))}
