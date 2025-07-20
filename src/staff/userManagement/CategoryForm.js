@@ -15,6 +15,29 @@ export default function CategoryForm({
   columnDefinitions,
   filterMaps
 }) {
+  const modalRef = React.useRef(null);
+
+  // Add click outside handler to close the modal and manage body class
+  useEffect(() => {
+    function handleClickOutside(event) {
+      if (modalRef.current && !modalRef.current.contains(event.target) && onClose) {
+        onClose();
+      }
+    }
+    
+    // Add modal-open class to body to prevent white strips
+    document.body.classList.add('modal-open');
+    
+    // Add event listener
+    document.addEventListener('mousedown', handleClickOutside);
+    
+    // Clean up the event listener and body class
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+      document.body.classList.remove('modal-open');
+    };
+  }, [onClose]);
+  
   // Handle form submission
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -91,7 +114,7 @@ export default function CategoryForm({
   const fieldRows = splitFieldsIntoRows(columnDefinitions, 3);
   return (
     <div className="category-modal-overlay">
-      <div className="category-modal">
+      <div className="category-modal" ref={modalRef}>
         <div className="category-modal-header">
           <h4 className="category-modal-title">
             {mode === 'edit' ? `Edit ${category}` : `Add ${category}`}

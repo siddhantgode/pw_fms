@@ -27,6 +27,28 @@ export default function StaffForm({ onUserAdded, onClose, showToast, editUser, m
   const [loading, setLoading] = useState(false);
   const [designationOptions, setDesignationOptions] = useState([]);
   const [teamOptions, setTeamOptions] = useState([]);
+  const modalRef = React.useRef(null);
+
+  // Add click outside handler to close the modal and manage body class
+  useEffect(() => {
+    function handleClickOutside(event) {
+      if (modalRef.current && !modalRef.current.contains(event.target) && onClose) {
+        onClose();
+      }
+    }
+    
+    // Add modal-open class to body to prevent white strips
+    document.body.classList.add('modal-open');
+    
+    // Add event listener
+    document.addEventListener('mousedown', handleClickOutside);
+    
+    // Clean up the event listener and body class
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+      document.body.classList.remove('modal-open');
+    };
+  }, [onClose]);
 
   useEffect(() => {
     // Fetch designations from personel
@@ -155,7 +177,7 @@ const fieldRows = splitFieldsIntoRows(fields, 3);
 
   return (
     <div className="staff-modal-overlay">
-      <div className="staff-modal">
+      <div className="staff-modal" ref={modalRef}>
         <div className="category-modal-header">
           <h4 className="category-modal-title">
             {mode === 'edit' ? 'Edit Staff' : 'Add Staff'}
