@@ -41,11 +41,13 @@ export function MultiSelect({ options, value, onChange, placeholder }) {
           alignItems: 'center',
           justifyContent: 'space-between',
           border: '1px solid #888',
-          padding: '6px 12px',
+          padding: '4px 18px',
           borderRadius: 0,
           cursor: 'pointer',
           backgroundColor: '#fff',
-          minHeight: 32
+          minHeight: 38,
+          height: 38,
+          fontSize: 15
         }}
         onClick={() => setIsOpen(!isOpen)}
       >
@@ -56,7 +58,6 @@ export function MultiSelect({ options, value, onChange, placeholder }) {
         </div>
         <div>{isOpen ? '▲' : '▼'}</div>
       </div>
-      
       {isOpen && (
         <div style={{
           position: 'absolute',
@@ -88,28 +89,31 @@ export function MultiSelect({ options, value, onChange, placeholder }) {
               onClick={(e) => e.stopPropagation()}
             />
           </div>
-          
           {/* Select all/none */}
           <div 
             style={{ 
               padding: '8px 12px', 
               borderBottom: '1px solid #eee',
               display: 'flex',
-              justifyContent: 'space-between'
+              justifyContent: 'space-between',
+              alignItems: 'center',
+              height: 38
             }}
           >
             <button 
               onClick={(e) => { 
                 e.stopPropagation(); 
-                onChange(filteredOptions); 
+                onChange(options.filter(option => option.toLowerCase().includes(searchTerm.toLowerCase()))); 
               }}
               style={{
                 border: 'none',
                 background: 'none',
-                padding: 0,
+                padding: '0 8px',
                 cursor: 'pointer',
-                fontSize: 12,
-                color: '#3d0066'
+                fontSize: 15,
+                color: '#3d0066',
+                height: 38,
+                borderRadius: 0
               }}
             >
               Select All
@@ -122,21 +126,22 @@ export function MultiSelect({ options, value, onChange, placeholder }) {
               style={{
                 border: 'none',
                 background: 'none',
-                padding: 0,
+                padding: '0 8px',
                 cursor: 'pointer',
-                fontSize: 12,
-                color: '#3d0066'
+                fontSize: 15,
+                color: '#3d0066',
+                height: 38,
+                borderRadius: 0
               }}
             >
               Clear All
             </button>
           </div>
-          
           {/* Options list */}
-          {filteredOptions.length === 0 ? (
+          {options.filter(option => option.toLowerCase().includes(searchTerm.toLowerCase())).length === 0 ? (
             <div style={{ padding: '8px 12px', color: '#888' }}>No options found</div>
           ) : (
-            filteredOptions.map((option) => (
+            options.filter(option => option.toLowerCase().includes(searchTerm.toLowerCase())).map((option) => (
               <div 
                 key={option}
                 style={{
@@ -217,12 +222,14 @@ export function ColumnPicker({ options, selected, onChange, onClose }) {
         <button
           onClick={() => onChange(options.map(opt => opt.value))}
           style={{
-            padding: '4px 8px',
-            fontSize: 12,
+            padding: '4px 18px',
+            fontSize: 15,
             backgroundColor: '#f0f0f0',
             border: '1px solid #ccc',
             borderRadius: 0,
-            cursor: 'pointer'
+            cursor: 'pointer',
+            height: 38,
+            minWidth: 90
           }}
         >
           Select All
@@ -230,13 +237,15 @@ export function ColumnPicker({ options, selected, onChange, onClose }) {
         <button
           onClick={onClose}
           style={{
-            padding: '4px 8px',
-            fontSize: 12,
+            padding: '4px 18px',
+            fontSize: 15,
             backgroundColor: '#3d0066',
             color: '#fff',
             border: 'none',
             borderRadius: 0,
-            cursor: 'pointer'
+            cursor: 'pointer',
+            height: 38,
+            minWidth: 90
           }}
         >
           Close

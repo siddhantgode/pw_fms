@@ -39,9 +39,10 @@ const UserManagement = () => {
           {categories.map(({ label, icon }) => (
             <div
               key={label}
+              className="category-tile"
               onClick={() => setActiveCategory(label)}
               style={{
-                height: 75, // 38 * 1.3 = 49.4
+                height: 75,
                 width: 140,
                 borderRadius: 0,
                 border: activeCategory === label ? '2px solid #3d0066' : '1px solid #3d0066',
@@ -50,7 +51,7 @@ const UserManagement = () => {
                 boxShadow: activeCategory === label ? '0 4px 16px rgba(61,0,102,0.10)' : '0 2px 8px rgba(61,0,102,0.04)',
                 cursor: 'pointer',
                 transition: 'all 0.2s',
-                padding: '0 10px',
+                padding: '0 10px 15px 10px',
                 margin: 0,
                 fontWeight: 500,
                 fontSize: 13,
@@ -59,12 +60,12 @@ const UserManagement = () => {
                 outlineOffset: 0,
                 position: 'relative',
                 display: 'flex',
-                alignItems: 'center',
+                alignItems: 'flex-end',
                 justifyContent: 'flex-start',
                 textAlign: 'left'
               }}
             >
-              <FontAwesomeIcon icon={icon} size="lg" style={{ marginRight: 10, color: activeCategory === label ? '#fff' : '#3d0066', fontSize: 18, transition: 'color 0.2s' }} />
+              <FontAwesomeIcon icon={icon} size="lg" className="fa-icon" style={{ marginRight: 10, color: activeCategory === label ? '#fff' : '#3d0066', fontSize: 18, transition: 'color 0.2s' }} />
               <span style={{ fontSize: 13, fontWeight: 600, letterSpacing: 0.2 }}>{label}</span>
               {activeCategory === label && (
                 <span style={{
@@ -85,6 +86,19 @@ const UserManagement = () => {
       </div>
       
       <style>{`
+        .category-tile {
+          transition: all 0.2s cubic-bezier(0.4,0,0.2,1);
+        }
+        .category-tile:hover {
+          background: #3d0066 !important;
+          color: #fff !important;
+          border-color: #3d0066 !important;
+          box-shadow: 0 4px 24px rgba(61,0,102,0.13) !important;
+          transform: scale(1.08);
+        }
+        .category-tile:hover .fa-icon {
+          color: #fff !important;
+        }
         @media (max-width: 992px) {
           .d-flex.justify-content-between.align-items-center {
             flex-direction: column;
